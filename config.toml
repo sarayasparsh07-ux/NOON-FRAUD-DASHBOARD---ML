@@ -1,0 +1,17 @@
+# Local-only settings for the Phase 4 fraud-check app (read when `streamlit run app.py` is started from the project root)
+[browser]
+gatherUsageStats = false      # no usage telemetry leaves the machine
+
+[server]
+address = "localhost"   # serve on this machine only (also skips Streamlit's external-IP lookup)
+headless = false
+runOnSave = false
+
+[client]
+toolbarMode = "minimal"   # hide the cloud "Deploy" button; this is a local prototype
+
+[theme]
+base = "light"
+primaryColor = "#1B2A4A"
+textColor = "#2B3445"
+font = "sans serif"

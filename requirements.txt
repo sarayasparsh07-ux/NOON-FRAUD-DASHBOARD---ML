@@ -1,0 +1,18 @@
+# Noon fraud-detection challenge — full project environment, Phases 1–4 (tested on Python 3.13.16, Linux x86-64, CPU only)
+# The app alone needs only requirements-app.txt.
+numpy==2.5.3
+pandas==2.3.3
+scikit-learn==1.9.1
+scipy==1.18.1
+torch==2.14.1            # CPU is sufficient (CTGAN is run with enable_gpu=False)
+ctgan==0.12.1            # Business Source License 1.1 — source-available; academic/internal use permitted
+rdt==1.22.0              # pinned below 2.0 to avoid the SDV 2.0 API change
+sdmetrics==0.32.0
+imbalanced-learn==0.14.2
+matplotlib==3.11.2
+seaborn==0.13.2
+joblib==1.6.0
+nbformat==5.11.1
+nbclient==0.11.0
+ipykernel
+streamlit==1.65.0        # Phase 4 fraud-check tool (app.py)

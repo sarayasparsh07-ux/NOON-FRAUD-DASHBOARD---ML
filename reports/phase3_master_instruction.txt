@@ -1,0 +1,425 @@
+# PHASE 3 — THE REFEREE: REAL DATA JUDGES EVERYONE
+## Execute Phase 3 of the Noon Food Delivery Fraud Detection Project
+
+Act as a senior Machine Learning Engineer, fraud-detection specialist, and statistical model-evaluation expert.
+
+Phase 1 and Phase 2 have been completed. You are now authorised to proceed with Phase 3.
+
+Your objective is to evaluate your completed fraud-detection models against the professor-provided real referee test dataset and compare their performance with Noon's supplied benchmark classifier.
+
+The evaluation must be statistically sound, reproducible, and completely independent of model development.
+
+Do not rebuild Phase 1 or Phase 2.
+
+---
+
+# PART 1 — AUTHORITATIVE DOCUMENTS AND PROJECT CONTEXT
+
+First, revisit the following two authoritative documents:
+
+1. `A_INTERN_BRIEF.md`
+2. `A_INTERN_data_dictionary.md`
+
+These are the only authoritative assignment specifications.
+
+Follow the original Phase 3 requirements exactly:
+
+**Step 3.1 — Score your classifier on the real data.**
+
+Report recall, precision, F1, and the confusion matrix on the real referee test set.
+
+**Step 3.2 — Score Noon's classifier on the same real data.**
+
+Use the supplied `B_NOON_model.joblib` or Noon's reported benchmark, and verify the supplied model against the benchmark wherever possible.
+
+**Step 3.3 — The final bar chart.**
+
+Compare your model and Noon's model on the real data.
+
+Explain:
+- Who detected more fraudulent transactions?
+- Who flagged fewer legitimate transactions?
+- What was the difference in fraud recall?
+- What was the difference in false positives?
+
+**Step 3.4 — Explain the gap.**
+
+Explain why Noon performs differently from your model, using evidence from Phase 1, Phase 2, and Phase 3.
+
+Keep the original professor instructions as the controlling requirements. Additional statistical methods may be used when they improve the evaluation, but must not compromise the specified phase or introduce unsupported assumptions.
+
+# PART 2 — AUDIT THE PHASE 2 REPORT BEFORE MOVING FORWARD
+
+Before execution, make two minor consistency corrections to the completed Phase 2 deliverables.
+
+1. The standalone `phase2_report.md` reports primary ROC-AUC as 0.975 ± 0.003, whereas the Word report and the Phase 2 ZIP's internal Markdown report show 0.974 ± 0.003. Verify the ten-seed CSV results and make all report versions consistent with the verified mean. Do not alter the actual experiment results.
+
+2. In the Phase 2 fraud-proportion table, the row `2,116 / 1,058 = 200%` represents GAN-generated fraud volume relative to the real training fraud count. It is not population fraud prevalence. Rename the row to make that distinction explicit.
+
+Do not rerun Phase 2 unless a genuine calculation or output error is discovered. Do not change any completed Phase 1 or Phase 2 model, dataset, or result.
+
+# PART 3 — VERIFY THE PHASE 3 INPUT FILES
+
+Locate and independently inspect:
+
+1. `C_REFEREE_real_test.csv`
+2. `B_NOON_model.joblib`
+3. `B_NOON_benchmark.md`
+4. `models/fraud_model.joblib`
+5. `models/fraud_model_gan_augmented.joblib`
+6. `models/fraud_model_baseline.joblib`
+7. `A_eval_helper.py`
+
+Confirm the presence, file integrity, and intended purpose of every input.
+
+## 3.1 Referee test dataset
+
+Inspect `C_REFEREE_real_test.csv`.
+
+The previous audit recorded:
+- 20,000 transaction records.
+- 11 columns.
+- 19,935 legitimate records.
+- 65 fraudulent records.
+- Fraud prevalence of 0.325%.
+- No missing values.
+- No duplicate records.
+
+Independently verify these counts.
+
+Confirm that the column names, order, types, categorical values, and binary variables correspond to the original data dictionary.
+
+Do not modify or overwrite the original referee file.
+
+## 3.2 Your saved models
+
+Understand the structure of the saved model artifacts before evaluating them.
+
+Your Phase 1 project contains:
+
+- `models/fraud_model.joblib`
+- `models/fraud_model_gan_augmented.joblib`
+- `models/fraud_model_baseline.joblib`
+
+The pre-declared Phase 1 selection procedure selected `A_baseline` as the final model. Verify this through the saved model metadata and the Phase 1 metrics.
+
+Use the following evaluation hierarchy:
+
+**Primary model:** `fraud_model.joblib`, representing the final selected Phase 1 classifier.
+
+**Secondary model:** `fraud_model_gan_augmented.joblib`, representing the CTGAN-augmented classifier. Evaluate this separately to understand how GAN augmentation performs on the real test data.
+
+**Baseline verification:** `fraud_model_baseline.joblib`. Determine whether this is identical to the selected final model. Do not report redundant duplicate models as separate candidates if they are the same fitted artifact.
+
+Do not misrepresent the GAN-augmented candidate as the selected final classifier.
+
+Do not retrain, modify, recalibrate, or replace any saved Phase 1 model.
+
+## 3.3 Understand the custom FraudModel interface
+
+Read `src/modeling.py` and understand the `FraudModel` class before loading or scoring the saved models.
+
+The custom model contains:
+- A fitted preprocessing and classification pipeline.
+- A Platt calibrator.
+- A frozen classification threshold.
+- Feature-order information.
+- Model metadata and provenance.
+
+Its prediction interface expects a DataFrame containing the original raw feature columns.
+
+Its `predict_proba()` method returns calibrated fraud probabilities. Its `predict()` method applies the model's stored threshold.
+
+Important:
+- Do not one-hot encode the input manually before passing it to this custom model.
+- Do not replace its stored threshold with 0.5.
+- Do not use the referee labels to recalibrate its probabilities.
+- Extract each model's own frozen threshold and metadata.
+- Confirm the class label representing fraud.
+
+The selected model's Phase 1 calibrated threshold was approximately 0.297. Verify the exact saved value rather than hardcoding it. The CTGAN-augmented model may have a different threshold; use its own stored threshold.
+
+Ensure that the saved model classes are importable from the project root before loading their joblib artifacts. Do not modify the serialized model files.
+
+# PART 4 — LOAD AND EVALUATE NOON'S BENCHMARK CLASSIFIER
+
+Inspect `B_NOON_model.joblib`.
+
+The Phase 2 audit found that it contains a dictionary with:
+- `model`
+- `num`
+- `cat`
+- `columns`
+
+It contains a Random Forest model with 200 estimators, balanced class weighting, random state 0, and 13 encoded input columns.
+
+Independently verify the model metadata.
+
+Use the stored feature-column information and the professor's supplied helper to prepare the referee features consistently.
+
+The optional helper is:
+
+`A_eval_helper.py`
+
+Its `score_on_referee()` function can be used to reproduce Noon's standard benchmark evaluation.
+
+Before scoring:
+- Verify the saved model's class order.
+- Ensure the positive class corresponds to `is_fraud = 1`.
+- Ensure payment-method encoding matches the model's stored feature columns.
+- Ensure no feature is missing or misaligned.
+- Verify that probabilities are extracted from the correct fraud class.
+
+The benchmark reports:
+
+| Metric | Noon Model B |
+|---|---:|
+| Fraud recall | 0.82 |
+| Precision | 0.43 |
+| F1 | 0.56 |
+| False positives | 71 |
+
+Its reported confusion matrix is:
+
+| Actual / predicted | Legitimate | Fraud |
+|---|---:|---:|
+| Legitimate | 19,864 | 71 |
+| Fraud | 12 | 53 |
+
+Use these figures as verification targets, not values to force your evaluation to reproduce.
+
+### Model-version compatibility
+
+The Phase 2 report identifies a version discrepancy:
+
+- Noon model was pickled using scikit-learn 1.8.0.
+- The current project environment uses scikit-learn 1.9.1.
+
+The model loaded during Phase 2, but its actual predictions have not yet been verified.
+
+Record the environment version and any compatibility warnings.
+
+Attempt to score the supplied model without modifying or resaving it.
+
+If a compatibility problem materially affects predictions, investigate whether an isolated environment with the original compatible dependency version is available.
+
+Do not alter the existing project environment, overwrite the model, or silently ignore a compatibility warning.
+
+If compatibility cannot be established, report the limitation clearly and distinguish a software issue from an actual model-performance result.
+
+# PART 5 — EXECUTE THE REAL REFEREE EVALUATION
+
+This is the central purpose of Phase 3.
+
+Use the exact same 20,000 referee records to evaluate:
+
+1. Your selected final classifier.
+2. Your CTGAN-augmented classifier.
+3. Noon's supplied benchmark classifier.
+
+The primary professor-facing comparison must be your selected final classifier against Noon's classifier.
+
+The CTGAN-augmented model is an additional comparison. Use it to evaluate whether the GAN's contribution generalises to the real referee dataset.
+
+Do not confuse these roles.
+
+## 5.1 Strict test-set restrictions
+
+The referee dataset is a reserved test set.
+
+It must not be used for:
+- Training or retraining.
+- Model selection.
+- Hyperparameter tuning.
+- Feature selection.
+- GAN fitting or synthetic augmentation.
+- Probability calibration.
+- Classification threshold optimisation.
+- Model replacement.
+- Any procedure that uses the referee labels to improve a model.
+
+All models and thresholds must remain frozen.
+
+For your custom models, apply the respective saved calibrated thresholds.
+
+For Noon's Random Forest, use the supplied classifier's original prediction rule.
+
+Do not change thresholds just to improve results or match the published benchmark.
+
+Different models may use different frozen thresholds. Explain that their threshold values are model-specific and are not directly comparable.
+
+## 5.2 Evaluation metrics
+
+Calculate the following for every evaluated model:
+
+**Required metrics**
+- Fraud recall.
+- Precision.
+- F1 score.
+- Confusion matrix.
+
+**Additional useful metrics**
+- True positives.
+- False positives.
+- True negatives.
+- False negatives.
+- False-positive rate.
+- Specificity.
+- Average precision / PR-AUC.
+- ROC-AUC.
+- Number of transactions flagged as fraud.
+
+Accuracy may be included as a supplementary metric, but it must not be a headline performance measure because the test dataset has severe class imbalance.
+
+Clearly distinguish:
+- Frauds successfully detected.
+- Frauds missed.
+- Legitimate transactions incorrectly flagged.
+- Legitimate transactions correctly classified.
+
+Independently recompute the key metrics using scikit-learn and verify that they match your reported results.
+
+## 5.3 Handle the small number of fraud cases responsibly
+
+The referee set has only 65 fraudulent transactions.
+
+A difference of a few detected cases can materially change recall.
+
+Where feasible, calculate and report appropriate 95% confidence intervals for recall and precision. Use a suitable method for the small fraud sample, such as Wilson intervals.
+
+For ranking metrics, suitable bootstrap confidence intervals may also be included.
+
+Make it clear that these intervals reflect uncertainty from a finite test sample. Do not overstate statistical certainty.
+
+A paired comparison using the same test transactions can be included as supplementary analysis where methodologically appropriate.
+
+Do not turn a supplementary statistical test into a substitute for the assignment's required metrics.
+
+# PART 6 — CREATE THE PHASE 3 COMPARISON
+
+Prepare a clean, professional comparison table.
+
+At minimum, include:
+
+| Model | Recall | Precision | F1 | TP | FP | FN | TN |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| My selected classifier | | | | | | | |
+| My CTGAN-augmented classifier | | | | | | | |
+| Noon Model B | | | | | | | |
+
+Use the actual computed results.
+
+Do not fill in missing or unavailable values using the benchmark document.
+
+## 6.1 Required visualisations
+
+Create professional and clearly labelled visualisations.
+
+At a minimum:
+
+1. Fraud recall comparison across the three models.
+2. False-positive count comparison.
+3. Confusion matrices for all three models.
+4. A precision-recall comparison where useful.
+
+The primary visual comparison must make it immediately clear which model catches the most real fraud and which model flags fewer innocent transactions.
+
+Avoid misleading axes, unnecessary chart decoration, and visual overlaps.
+
+Show actual values on charts where appropriate.
+
+Use consistent colours and model names throughout the notebook and report.
+
+# PART 7 — EXPLAIN THE PERFORMANCE GAP
+
+Use the results from Phase 1, Phase 2, and Phase 3 to explain why the models perform differently.
+
+Your explanation must address:
+
+1. Why Noon's GAN may have learned fraud characteristics that were absent or underrepresented in your assumption-driven seed data.
+2. What Phase 2 revealed about the differences between the two fraud generators.
+3. Whether the Phase 3 results are consistent with the patterns identified in Phase 2.
+4. Which model detects more real fraud.
+5. Which model produces fewer false positives.
+6. Whether your CTGAN-augmented model improves or worsens real-data performance relative to your selected baseline.
+7. What limitations prevent a definitive claim about the full Noon fraud population.
+
+Use actual test-set findings to support your explanation.
+
+Do not automatically attribute every performance difference to the GAN. Differences in model architecture, training data, preprocessing, calibration, class composition, and thresholds may also matter.
+
+Noon's synthetic fraud dataset is a benchmark, not ground truth. The referee results are the actual evidence available for this evaluation.
+
+If conducting post-hoc error analysis, keep it descriptive only. Do not use any findings to change models or thresholds.
+
+# PART 8 — DELIVERABLES
+
+Save all Phase 3 outputs in a dedicated, organised directory:
+
+`outputs/phase3/`
+
+Include:
+
+1. Verified model inventory and metadata.
+2. Referee dataset integrity report.
+3. Model-level prediction outputs.
+4. Metric comparison CSV.
+5. Confusion matrices.
+6. Required recall and false-positive charts.
+7. Additional justified evaluation charts.
+8. Confidence interval results, where calculated.
+9. Benchmark reproduction check.
+10. A reproducible Phase 3 notebook section or notebook.
+11. A written `phase3_report.md`.
+12. A `phase3_quality_review.md` recording passed, failed, and untested checks.
+
+Preserve the original Phase 1 and Phase 2 files.
+
+Do not overwrite the professor-supplied benchmark model, the referee dataset, or the completed Phase 1/2 reports.
+
+Update the project documentation and output inventory appropriately.
+
+# PART 9 — FINAL QUALITY ASSURANCE
+
+Before declaring Phase 3 complete, verify:
+
+- All three intended models have been identified correctly.
+- Your selected model is not confused with the GAN-augmented candidate.
+- No model has been retrained or modified.
+- All models were scored against the same 20,000 referee records.
+- All 65 fraud cases were included.
+- The original schema and payment-method encoding were preserved.
+- Each model's correct frozen prediction rule was applied.
+- No referee labels were used for tuning, calibration, or model selection.
+- Noon's benchmark reproduction was checked.
+- Confusion matrices reconcile with the dataset size.
+- Recall, precision and F1 are independently verified.
+- All charts have readable labels, legends and values.
+- All written conclusions are supported by the actual results.
+- Phase 1 and Phase 2 outputs remain unchanged.
+
+Where possible, execute the Phase 3 evaluation in a fresh kernel using the saved models and original referee data. Verify that the generated tables and predictions can be reproduced.
+
+Do not claim a check passed unless it was actually executed and verified.
+
+---
+
+# FINAL EXECUTION INSTRUCTION
+
+Execute Phase 3 only.
+
+First, make the two minor Phase 2 reporting corrections. Then freeze all existing model artefacts and perform the real referee evaluation.
+
+Do not proceed to Phase 4.
+
+The most important objectives are:
+
+1. A fair comparison of your selected classifier against Noon's benchmark.
+2. A separate evaluation of your CTGAN-augmented classifier.
+3. Correct recall, precision, F1, and confusion matrices.
+4. Strict protection of the real referee test set against data leakage.
+5. A convincing, evidence-based explanation of the performance gap.
+
+Work independently, use sound statistical judgement, and report the actual findings even when the results are unfavourable.
+
+The objective is to demonstrate a technically rigorous and honest evaluation—not to make your model beat Noon.

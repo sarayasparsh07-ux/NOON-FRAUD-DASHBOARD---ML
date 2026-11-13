@@ -1,0 +1,163 @@
+# FINAL SUBMISSION CONSISTENCY AUDIT — NOON FRAUD DETECTION PROJECT
+
+The four phases of the Noon Food Delivery Fraud Detection project are complete.
+
+The latest consolidated Word report, `Final_Project_Report.docx`, has been reviewed and its technical findings are accepted, subject to the limited wording and formatting refinements below.
+
+Your task is to synchronise the final project documents and ZIP package so that every submission file reflects the completed Phases 1–4.
+
+This is a documentation and packaging task only.
+
+## 1. Update the consolidated Markdown report
+
+The current file:
+
+`reports/final_report.md`
+
+still contains the older Phase 1-only report and incorrectly states that Phases 2 and 3 are pending.
+
+Replace its contents with the completed consolidated final report.
+
+Use `Final_Project_Report.docx` as the primary content reference. Preserve the verified findings, tables, conclusions and four required assignment questions.
+
+The Markdown and Word versions must communicate the same results and conclusions.
+
+Keep `reports/Phase1_Report.docx` unchanged as the historical Phase 1 supporting report.
+
+## 2. Add the final Word report to the project archive
+
+The standalone `Final_Project_Report.docx` is currently missing from the supplied ZIP archive.
+
+Include it as:
+
+`reports/Final_Project_Report.docx`
+
+Ensure that the ZIP contains both:
+
+- `reports/final_report.md`
+- `reports/Final_Project_Report.docx`
+
+The new consolidated report must not replace the Phase 1, Phase 2 or Phase 3 supporting reports.
+
+## 3. Update README.md
+
+The README currently identifies `reports/final_report.md` and `reports/Phase1_Report.docx` as the final approximately one-page submission report.
+
+Correct this.
+
+The README must distinguish:
+
+- The consolidated final report: `reports/final_report.md` and `reports/Final_Project_Report.docx`.
+- The supporting Phase 1 report: `reports/Phase1_Report.docx`.
+- The supporting Phase 2 report: `reports/Phase2_Report.docx`.
+- The supporting Phase 3 report: `reports/Phase3_Report.docx`.
+
+Retain the existing Phase 4 setup, model and execution instructions. Do not change the working application.
+
+## 4. Update rubric_traceability.md
+
+The ninth criterion currently says that only the Phase 1 report is complete and that the real-data questions remain pending.
+
+This is outdated.
+
+Update criterion 9 to reflect that the final integrated report now answers all four questions in Section 8 of the original assignment brief.
+
+Also update the outdated status descriptions in:
+
+- Criterion 1: correctness of assumptions was previously awaiting Phase 3.
+- Criterion 2: comparison of synthetic realism against Noon was previously awaiting Phase 3.
+
+Both Phase 3 evaluation and the Phase 2 comparison are now complete.
+
+Maintain the original nine criteria, their mark allocations and the total of 40 marks.
+
+Map every criterion to its actual final evidence. Do not mark a criterion complete without identifying the corresponding deliverable.
+
+## 5. Refine two statements in the final report
+
+### A. Clarify the original assumption process
+
+The current report states that assumptions were developed from the 11 column names alone.
+
+The project also uses documented public-context anchors for certain numerical assumptions.
+
+Use wording that explains that the project was built without access to Noon transaction data, starting from the prescribed 11-column schema and documented public-context assumptions.
+
+Preserve the important distinction that no confidential Noon transaction data informed Phase 1.
+
+### B. Clarify the Phase 3 feature discrepancy statistic
+
+The report currently says:
+
+"Real fraud lies almost as close to Noon's synthetic fraud as sampling noise allows: mean distance 0.099 against a noise floor of 0.086."
+
+Refine this wording.
+
+The 0.099 statistic is an unweighted mean across ten feature-level effect sizes, combining KS statistics and Total Variation Distance. The 0.086 statistic is a simulated sampling reference.
+
+Use wording along these lines:
+
+"The mean of the ten feature-level discrepancy statistics was 0.099 for real fraud versus Noon's unique synthetic fraud, compared with a simulated sampling reference of 0.086. This is descriptive evidence of similarity, not a formal multivariate equivalence test."
+
+Do not recalculate or change the underlying results.
+
+## 6. Correct the Word report layout
+
+The current Word report has the heading "Why Noon won" at the bottom of page 1, separated from the explanation on page 2.
+
+Keep the heading with its following content.
+
+Aim for approximately one page as requested in the professor's brief. If retaining the comparison chart makes a two-page report materially clearer, a maximum of two well-balanced pages is acceptable.
+
+Do not reduce font sizes excessively, compress tables to unreadable levels, or remove essential assignment findings.
+
+Render the Word report after the correction and inspect every page for layout defects.
+
+## 7. Preserve all completed technical work
+
+Do not:
+- Retrain any classifier or GAN.
+- Modify synthetic datasets.
+- Change model thresholds.
+- Modify the selected classifier or the GAN-augmented candidate.
+- Change Phase 2 or Phase 3 results.
+- Use referee data for any new model development.
+- Rebuild or redesign the Streamlit dashboard.
+- Modify the professor's original files.
+
+Keep all existing Phase 4 testing evidence, including the 44/44 automated tests and browser-check logs.
+
+The application and saved models must remain unchanged.
+
+## 8. Final archive validation
+
+Before producing the final ZIP:
+
+- Confirm that the Markdown report and Word report agree.
+- Confirm that the consolidated final Word report is inside `reports/`.
+- Confirm that the README points to the correct documents.
+- Confirm that all nine rubric criteria have accurate statuses.
+- Confirm that the original phase-specific reports remain intact.
+- Confirm that no model, data or application code has changed.
+- Confirm that the ZIP opens successfully and contains all required deliverables.
+
+Verify the final document by rendering it, and inspect the rendered pages.
+
+Produce a clean final archive named:
+
+`Noon_Fraud_Detection_Final_Submission.zip`
+
+## FINAL INSTRUCTION
+
+Complete only the documentation, packaging and final consistency corrections.
+
+Do not introduce new machine-learning experiments or unnecessary application changes.
+
+At completion, provide:
+1. The final ZIP archive.
+2. The consolidated final Word report.
+3. The updated Markdown report.
+4. The updated rubric traceability.
+5. A final checklist confirming all five submission categories in Section 8 of the professor's brief.
+
+Clearly identify any remaining limitation. Do not claim the project is submission-ready until the archive and its internal documentation have been checked.

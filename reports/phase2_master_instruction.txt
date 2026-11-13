@@ -1,0 +1,491 @@
+# MASTER INSTRUCTION — NOON FOOD DELIVERY FRAUD DETECTION PROJECT
+## Phase 1 Completed | Phase 2 Execution | Phase 3 and Phase 4 Preparation
+
+Act as a senior Machine Learning Engineer, Data Scientist, GAN specialist, and fraud-detection analyst with substantial experience in imbalanced classification, synthetic tabular data, model evaluation, and practical ML deployment.
+
+You are continuing an existing academic project: **Fraud Detection at Noon (Food Delivery)**.
+
+Phase 1 has already been completed. Your responsibility is to understand the professor's newly supplied materials, execute Phase 2 correctly, and preserve the necessary inputs and preparation for Phases 3 and 4.
+
+The quality of your analysis, technical accuracy, interpretation, and adherence to the assignment requirements are more important than producing an unnecessarily complicated solution.
+
+---
+
+# PART 1 — ESTABLISH THE AUTHORITATIVE PROJECT REQUIREMENTS
+
+Before doing anything, read both original assignment documents in full:
+
+1. `A_INTERN_BRIEF.md`
+2. `A_INTERN_data_dictionary(1).md`
+
+These are the primary authoritative documents defining the assignment.
+
+You must preserve their requirements, terminology, phase sequence, data definitions, deliverables, and evaluation criteria.
+
+In particular, understand:
+
+- The underlying fraud-detection problem.
+- Why GANs are required for generating additional synthetic fraud examples.
+- Why an actual GAN must be used instead of an LLM-generated collection of rows.
+- The seed dataset and classifier already developed in Phase 1.
+- The required Phase 2 comparison between your synthetic fraud and Noon's synthetic fraud.
+- The Phase 3 requirement to evaluate classifiers on the real referee test set.
+- The Phase 4 requirement to develop a working fraud-check application.
+- The complete 40-mark evaluation rubric.
+
+The data dictionary defines the following required fields:
+
+`order_amount`, `account_age_days`, `hour_of_day`, `num_orders_last_7d`, `payment_method`, `delivery_distance_km`, `discount_applied`, `prev_refunds`, `device_change`, `location_mismatch`, and `is_fraud`.
+
+Do not change the schema, field meanings, permitted categories, or target definition.
+
+The newly supplied professor files are supporting phase-specific resources. Use them according to their purpose. Do not interpret a code example, optional helper, or illustrative implementation as an additional mandatory requirement unless the original assignment explicitly requires it.
+
+Where a source discrepancy exists, identify and explain it. Never silently reconcile conflicting information by inventing an assumption.
+
+# PART 2 — UNDERSTAND AND CLASSIFY ALL NEWLY SUPPLIED FILES
+
+The following files have now been supplied:
+
+1. `A_eval_helper.py`
+2. `B_NOON_synthetic_fraud.csv`
+3. `B_NOON_model.joblib`
+4. `B_NOON_benchmark.md`
+5. `C_REFEREE_real_test.csv`
+6. `app(2).py`
+
+Inspect each file independently. Understand its purpose, internal structure, intended phase, and limitations.
+
+Use the following classification:
+
+### A. `B_NOON_synthetic_fraud.csv` — Phase 2
+
+This is the supplied Noon synthetic fraud dataset.
+
+Inspect:
+- Number of records and columns.
+- Exact schema correspondence with the original data dictionary.
+- Data types.
+- Missing values.
+- Duplicate rows.
+- Unique observations.
+- Value ranges and distributions.
+- Target-label distribution.
+- Categorical and binary feature proportions.
+- Statistical characteristics of the fraud examples.
+
+Do not assume this is a complete transaction dataset containing legitimate and fraudulent orders. Determine its actual contents from the file.
+
+Our preliminary inspection indicates that all 3,000 records are labelled `is_fraud = 1`, with 1,967 duplicate rows and 1,033 distinct complete rows. Independently verify these findings.
+
+The duplicate count is important. Report it and explain its implications for the statistical comparison and lie-detector evaluation.
+
+Do not silently remove duplicates or overwrite the original file. Where useful, conduct a separate duplicate-aware sensitivity analysis.
+
+### B. `A_eval_helper.py` — Optional comparison utility
+
+Read and understand the complete code.
+
+It provides three functions:
+
+1. `compare_distributions(mine_fraud, noon_fraud)`
+2. `lie_detector(mine_fraud, noon_fraud)`
+3. `score_on_referee(clf, train_columns, referee, label="model")`
+
+Understand exactly what each function calculates and how its internal preprocessing works.
+
+The helper is optional. Use it where it improves consistency with the professor's expected evaluation.
+
+Do not blindly rely on its outputs without checking the assumptions behind the metrics.
+
+In particular:
+- The distribution comparison uses histograms with density normalisation.
+- The lie detector uses a Random Forest classifier and reports accuracy.
+- The referee evaluation calculates fraud recall, precision, F1, false positives, and a confusion matrix.
+
+For the lie detector, consider class balance between the two source groups. If their sample sizes differ, use an appropriate equal-sized comparison or report the relevant majority-class baseline. Do not interpret an accuracy of 0.50 as proof that two datasets are identical.
+
+Also consider how the large number of repeated rows in Noon's supplied file may affect the source-classification experiment.
+
+### C. `B_NOON_model.joblib` — Phase 3 benchmark classifier
+
+Inspect the saved model's structure and understand how it accepts input data.
+
+Our preliminary inspection indicates that it contains:
+- A Random Forest classifier.
+- 200 estimators.
+- Balanced class weighting.
+- Random state 0.
+- 13 model input features.
+- Nine numeric variables and one categorical variable expanded into four one-hot columns.
+
+Its stored dictionary contains `model`, `num`, `cat`, and `columns`.
+
+Independently verify these details.
+
+Preserve this model as Noon's supplied benchmark classifier. Do not overwrite it, modify it, retrain it, or confuse it with your own Phase 1 classifier.
+
+Use it for the appropriate comparison in Phase 3.
+
+### D. `B_NOON_benchmark.md` — Official benchmark reference
+
+Read the entire document.
+
+Understand the two benchmark models presented:
+
+- Model A: real data only.
+- Model B: real data combined with Noon's GAN-generated fraud.
+
+The document reports the following benchmark results:
+
+| Model | Recall | Precision | F1 | False positives |
+|---|---:|---:|---:|---:|
+| Model A | 0.14 | 0.90 | 0.24 | 1 |
+| Model B | 0.82 | 0.43 | 0.56 | 71 |
+
+Understand why Noon's Model B improves recall and why false positives increase.
+
+Important: the heading mentions three models, but the table contains only two. Do not invent a third model or unsupported results.
+
+The supplied model artifact corresponds to Model B's benchmark performance. A separate serialized Model A classifier has not been supplied.
+
+There is also an important denominator distinction. The document reports an approximately 0.3% fraud rate for the real referee test set. This is not evidence that the fraud-only `B_NOON_synthetic_fraud.csv` has a 0.3% fraud composition.
+
+Keep these interpretations separate in your analysis.
+
+### E. `C_REFEREE_real_test.csv` — Phase 3 reserved test data
+
+Understand that this is the real referee test dataset supplied for Phase 3.
+
+Our preliminary inspection indicates:
+- 20,000 rows.
+- 11 columns.
+- 19,935 legitimate transactions.
+- 65 fraudulent transactions.
+- Fraud prevalence of 0.325%.
+- No missing values.
+- No duplicate rows.
+
+Verify basic file integrity and schema correspondence without using this dataset to influence your Phase 2 analysis or Phase 1 model.
+
+**Strict restriction:** Do not use this file for training, data augmentation, feature selection, hyperparameter tuning, threshold optimisation, model selection, or any other form of model development.
+
+Reserve actual test evaluation for Phase 3, after your model has been frozen.
+
+The fact that the benchmark results are visible does not give you permission to adjust your classifier until it matches Noon's results.
+
+### F. `app(2).py` — Phase 4 application reference
+
+Read the full source code and understand the intended application workflow.
+
+The example uses Streamlit and:
+- Accepts the transaction variables as user inputs.
+- Applies categorical encoding.
+- Aligns the generated input columns with the model's training columns.
+- Produces a FRAUD or LEGIT verdict.
+- Displays a risk score.
+
+Treat this file as a reference implementation, not an inflexible application design.
+
+The final application must load your own final trained classifier, not Noon's benchmark model.
+
+Ensure that decimal AED order amounts are supported and that the input ranges, categorical handling, feature alignment, and model prediction logic are consistent with your saved classifier.
+
+Check the model's actual class ordering before selecting the probability for the fraud class.
+
+---
+
+# PART 3 — PRESERVE THE COMPLETED PHASE 1 WORK
+
+Phase 1 has already been completed. Do not recreate it from scratch.
+
+Locate and inspect the existing Phase 1 outputs in your working directory.
+
+Identify the actual files containing:
+- Your seed transaction data.
+- Your GAN-generated synthetic fraud.
+- Your full synthetic transaction dataset, where applicable.
+- Your trained classifier.
+- Your saved feature-column information.
+- Your before-and-after classification results.
+- Your GAN training evidence.
+- Your written assumptions.
+
+Verify which output represents the full synthetic transaction dataset and which output represents only GAN-generated fraud.
+
+This distinction is essential for making a valid Phase 2 comparison.
+
+Do not overwrite, rename, or modify completed Phase 1 deliverables without a clear reason. Preserve the original outputs so the project remains reproducible.
+
+Do not recreate Phase 1 simply to make its results more convenient for Phase 2.
+
+If a required Phase 1 artifact is missing, identify the exact missing file and explain why it is needed. Do not fabricate or reconstruct a dataset or model while pretending it was part of the completed Phase 1 work.
+
+---
+
+# PART 4 — EXECUTE PHASE 2: THE REVEAL — YOUR GAN VS. NOON'S GAN
+
+Now complete Phase 2 using the actual Phase 1 outputs and the professor's newly supplied files.
+
+Follow the four Phase 2 steps from the original assignment.
+
+## STEP 2.1 — COMPARISON EDA
+
+Compare your GAN-generated synthetic fraud examples with those in:
+
+`B_NOON_synthetic_fraud.csv`
+
+Use the correct fraud-only subsets for both datasets.
+
+Do not compare your full legitimate-plus-fraud seed dataset against a fraud-only Noon sample as though they were equivalent populations.
+
+Start with the three features explicitly suggested in the brief:
+
+- `order_amount`
+- `account_age_days`
+- `num_orders_last_7d`
+
+Expand the comparison where it adds meaningful insight.
+
+Examine relevant:
+- Numeric feature distributions.
+- Mean, median, standard deviation, and useful quantiles.
+- Categorical frequencies.
+- Binary feature proportions.
+- Potential differences in feature relationships.
+- Outliers, repeated observations, and data-quality issues.
+
+Use clear, appropriately chosen charts. Histograms should have meaningful axes, readable legends, and comparable scales. Where suitable, use supplementary charts to examine categorical and binary variables.
+
+Explain the practical meaning of each material difference.
+
+Do not generate charts merely to increase the number of visualisations. Every chart must communicate something useful.
+
+Make sure that:
+- The two datasets are clearly labelled.
+- The comparison is statistically meaningful.
+- No chart titles or legends overlap.
+- Axis labels and units are present.
+- The visualisations are readable and professionally formatted.
+
+## STEP 2.2 — CHECK THE FRAUD PROPORTION
+
+This step requires particularly careful interpretation.
+
+The assignment asks you to compare the fraud proportion in your synthetic data against Noon's.
+
+However, the supplied Noon CSV appears to contain only records labelled as fraud.
+
+Therefore, calculate and report the following separately:
+
+1. Fraud proportion in your complete Phase 1 seed or synthetic transaction dataset.
+2. Number and proportion of your GAN-generated fraud examples relative to the original training population.
+3. Class composition of the combined training dataset after augmentation, where this is available.
+4. Class composition of `B_NOON_synthetic_fraud.csv`.
+
+Make the denominator explicit in every reported percentage.
+
+If the Noon file contains only fraud-labelled rows, report its within-file composition as 100%. Explain that this is a fraud-only sample and does not represent the prevalence of fraud across all Noon transactions.
+
+Do not claim that Noon's overall transaction-level fraud rate is 100%.
+
+Do not claim that the approximately 0.3% figure in the benchmark document represents the fraud percentage of the Noon fraud-only CSV. That figure describes the referee test-set prevalence.
+
+If the available files do not permit a valid apples-to-apples comparison of overall synthetic class balance, explicitly identify the limitation.
+
+Do not invent Noon's missing legitimate transaction count or synthetic population denominator.
+
+## STEP 2.3 — THE LIE-DETECTOR TEST
+
+Implement the source-classification experiment using the Phase 1 fraud-only synthetic examples and Noon's fraud-only synthetic examples.
+
+The objective is to determine whether a classifier can distinguish the two sources using their transaction features.
+
+A source-classification accuracy close to 0.50 suggests that the two samples are less distinguishable under the chosen experiment. High accuracy suggests that meaningful differences remain.
+
+However, this result must not be interpreted in isolation.
+
+Before running the experiment:
+- Exclude `is_fraud` from the predictor variables. It is always 1 in both fraud-only samples and must not be used to identify the source.
+- Ensure identical feature definitions and categorical preprocessing.
+- Use equivalent sample sizes or otherwise account for the majority-class baseline.
+- Avoid introducing repeated copies through artificial oversampling.
+- Consider the effect of the repeated rows in Noon's dataset.
+
+Use the professor's `lie_detector()` function where appropriate.
+
+You may add supplementary evaluation measures or repeated experiments where they provide useful evidence, but do not replace or misrepresent the professor's specified comparison.
+
+Report:
+- The sample sizes used.
+- The preprocessing approach.
+- The validation method.
+- The resulting accuracy.
+- The relevant baseline.
+- The most influential differences, where identifiable.
+- The limitations of the experiment.
+
+Explain what the result tells you about the similarities and differences between the two fraud distributions.
+
+Do not claim that a result close to 0.50 proves the datasets are statistically identical.
+
+## STEP 2.4 — REFLECTION AND INTERPRETATION
+
+Return to the fraud assumptions documented in Phase 1.
+
+Compare those original assumptions with the evidence from Noon's supplied synthetic fraud examples.
+
+Answer the following questions:
+
+1. What did your original GAN capture correctly?
+2. Where do your synthetic fraud examples differ from Noon's?
+3. Which variables or combinations appear to be represented differently?
+4. What assumptions from Phase 1 appear to be supported?
+5. Which assumptions appear incomplete or questionable?
+6. What did Noon's supplied fraud examples reveal that your original approach did not capture?
+7. What would you improve in your approach, and why?
+
+Separate observed evidence from interpretation.
+
+Do not automatically conclude that Noon's generated data represents the true fraud distribution perfectly. It is the professor-provided benchmark sample, but its limitations, including duplication, must still be acknowledged.
+
+Do not retroactively rewrite your original Phase 1 assumptions. Preserve the original assumptions and discuss how your understanding has evolved.
+
+---
+
+# PART 5 — PHASE 2 QUALITY CONTROL AND DELIVERABLES
+
+Before declaring Phase 2 complete, conduct a systematic audit.
+
+Check that:
+
+- The Phase 1 fraud-only sample has been correctly identified.
+- Noon's supplied fraud-only sample has been correctly interpreted.
+- The required schema has been preserved.
+- The target variable has not leaked into the lie-detector predictors.
+- Duplicate observations have been investigated.
+- The class-balance comparison uses correct denominators.
+- The helper functions have been used correctly.
+- The plots are readable and accurately labelled.
+- The interpretation is supported by actual results.
+- No unsupported Noon statistics have been invented.
+- The original Phase 1 deliverables remain intact.
+
+Produce the Phase 2 outputs in a clear, organised structure.
+
+The deliverables should include:
+
+1. A Phase 2 comparison notebook or equivalent reproducible analysis, with outputs visible.
+2. The distribution comparison charts.
+3. The fraud-proportion and class-composition analysis.
+4. The lie-detector experiment and evaluation results.
+5. The duplicate and data-quality analysis.
+6. The written reflection answering Step 2.4.
+7. A concise Phase 2 results summary suitable for inclusion in the final project report.
+
+Do not modify the professor's original files.
+
+Clearly identify any outstanding issues or limitations.
+
+---
+
+# PART 6 — PRESERVE THE CORRECT PHASE 3 WORKFLOW
+
+Do not execute Phase 3 during this Phase 2 task.
+
+However, understand precisely how the next phase must be completed.
+
+Phase 3 requires:
+
+- Your frozen Phase 1 classifier.
+- `C_REFEREE_real_test.csv`.
+- `B_NOON_model.joblib`.
+- `B_NOON_benchmark.md`.
+- The optional `score_on_referee()` helper.
+
+Once Phase 2 is complete and the classifiers are frozen:
+
+1. Score your classifier on the referee dataset.
+2. Score Noon's supplied classifier on exactly the same records.
+3. Calculate recall, precision, F1, false positives, and confusion matrices.
+4. Construct a clear side-by-side fraud-recall comparison.
+5. Explain the performance gap using the evidence available.
+
+The supplied Model B benchmark is approximately:
+
+- Recall: 0.82.
+- Precision: 0.43.
+- F1: 0.56.
+- False positives: 71.
+
+Use these as reference values, not optimisation targets.
+
+The saved Noon model should reproduce the corresponding benchmark results when evaluated with compatible preprocessing and the supplied referee data. Investigate any discrepancies rather than concealing them.
+
+Do not claim an exact Model A evaluation from a model artifact because no separate Model A serialized model has been provided.
+
+The most important interpretation will be why Noon's GAN-generated fraud examples generalise better to the referee dataset than fraud examples generated from your Phase 1 assumptions.
+
+Explain this honestly. Do not claim that a better model is necessarily better in every business context without considering false positives and fraud recall together.
+
+---
+
+# PART 7 — PRESERVE THE CORRECT PHASE 4 WORKFLOW
+
+Do not build the final application during this Phase 2 task.
+
+Prepare to use `app(2).py` as the application reference in Phase 4.
+
+The final application must use your own final classifier, saved with the model and the necessary training feature-column information.
+
+It must:
+- Accept all required transaction predictor inputs.
+- Preserve the original data dictionary's categories and data definitions.
+- Apply the same preprocessing used during training.
+- Align input features with the saved model columns.
+- Produce a clear FRAUD or LEGIT classification.
+- Display a meaningful model risk score where supported.
+- Handle invalid input and model-loading errors appropriately.
+
+The application should be clean, intuitive, and functional.
+
+Do not accidentally load Noon's benchmark model and present its verdict as your model's prediction.
+
+Do not treat the reference application's example input limits as compulsory assignment constraints.
+
+---
+
+# PART 8 — STRICT RULES FOR THE ENTIRE REMAINING PROJECT
+
+Follow these rules throughout:
+
+1. Do not rebuild Phase 1. It has already been completed.
+2. Do not invent missing datasets, labels, model results, or benchmark statistics.
+3. Do not modify the professor's supplied datasets or saved benchmark model.
+4. Do not treat the fraud-only Noon sample as a complete transaction population.
+5. Do not use the referee test set for model development.
+6. Do not tune your classifier to reproduce Noon's benchmark figures.
+7. Do not use the Noon benchmark classifier as your own final classifier.
+8. Do not confuse optional helper functions with mandatory methods.
+9. Do not introduce unnecessary methods merely to make the project look more sophisticated.
+10. Do not omit any explicit requirement from the original assignment.
+11. Maintain reproducibility, clear file names, and traceable outputs.
+12. Explain any limitations, assumptions, discrepancies, or missing inputs clearly.
+
+When making a methodological decision not explicitly specified in the assignment, independently evaluate the available alternatives and select the most appropriate one. Explain the reason without pretending that your choice was mandated by the professor.
+
+---
+
+# FINAL EXECUTION INSTRUCTION
+
+Begin by auditing the original assignment documents, the completed Phase 1 outputs, and all newly supplied files.
+
+Then execute **Phase 2 only**, following Steps 2.1 through 2.4.
+
+Do not jump ahead and execute Phase 3 or Phase 4.
+
+Prioritise analytical accuracy, correct interpretation, reproducibility, and a clear explanation of the findings.
+
+The objective is not to make your Phase 1 work appear better than Noon's. The objective is to demonstrate that you understand how synthetic fraud generation, GAN quality, data distributions, and downstream fraud-detection performance relate to one another.
+
+Complete Phase 2 thoroughly and report exactly what has been accomplished, what the results demonstrate, and what remains for the next phase.

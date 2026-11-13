@@ -1,0 +1,11 @@
+{
+ "description": "SHA-256 of the professor-supplied files exactly as received on 31 Oct 2026 (read-only copies in professor_supplied/). app.py is stored as 'app(2).py' to match the master instruction's naming; content unchanged.",
+ "files": {
+  "A_eval_helper.py": "d346ab09c781fae8fdcef428e9008eaf1f6f4628d243b7876ac03bcb2524d510",
+  "B_NOON_benchmark.md": "db15db37427a503c8dd55c415f980c7f98944af6b55543d9f3f95c2d70196578",
+  "B_NOON_model.joblib": "b18c75f9b572e51d4fbfcfdc1ebdd7d48b547a8d0420ba0f4811366cbcb73e75",
+  "B_NOON_synthetic_fraud.csv": "09aa1bd55bbbc377649552a04beabab7dcc4dcabbcd139fed214b7301b47df71",
+  "C_REFEREE_real_test.csv": "053208cc6a1dfaf44e682684f3e59e59208f2adc53762dcd3867d876dbce747f",
+  "app(2).py": "4476a3801fae57bf6311926ffb09f96320189d01477424962c067ddd760239a9"
+ }
+}

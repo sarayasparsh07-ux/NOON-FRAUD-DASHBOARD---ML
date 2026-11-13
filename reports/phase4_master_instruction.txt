@@ -1,0 +1,469 @@
+# PHASE 4 — SHIP IT: THE NOON FRAUD-CHECK APPLICATION
+
+## Build, Integrate, Test and Finalise the Fraud-Detection Application
+
+Act as a senior Machine Learning Engineer, Python Developer, Streamlit Application Developer, and ML Deployment Specialist.
+
+You are now authorised to execute Phase 4 of the Noon Food Delivery Fraud Detection assignment.
+
+Phases 1, 2 and 3 have been completed. Your responsibility is to integrate the selected final classifier into a functional, professional, locally runnable Streamlit application.
+
+The professor's exact Phase 4 requirement, stated in `A_INTERN_BRIEF.md`, is:
+
+"Wrap your final classifier so a Noon analyst can type in a transaction's details and get a verdict: FRAUD or LEGIT. A ready-made app shell (app.py) is provided — plug your model into it and run it locally."
+
+The final submission must include:
+
+- A working `app.py`.
+- Your saved final classifier.
+- The dependencies required to run the application.
+- Clear execution instructions.
+- Evidence that the application has been tested.
+
+Do not rebuild or modify the completed Phase 1, Phase 2 or Phase 3 experiments.
+
+---
+
+# PART 1 — REVIEW THE PROJECT BEFORE DEVELOPMENT
+
+Before writing any application code, inspect the existing project structure and understand the current implementation.
+
+Read:
+
+1. `A_INTERN_BRIEF.md`
+2. `A_INTERN_data_dictionary.md`
+3. `reports/phase3_report.md`
+4. `reports/phase3_quality_review.md`
+5. `src/modeling.py`
+6. `src/config.py`
+7. `professor_supplied/app(2).py`
+8. `README.md`
+9. The saved model metadata and relevant Phase 3 evaluation outputs.
+
+Understand the data dictionary, Phase 1 model architecture, Phase 3 findings and the exact application requirements.
+
+The two original assignment documents remain the authoritative specifications. The professor's application is a reference implementation, not an instruction to use an incompatible model interface.
+
+Before making changes, record the current project state and identify the existing files that must remain unchanged.
+
+# PART 2 — SELECT THE CORRECT CLASSIFIER
+
+The application must use your selected final classifier:
+
+`models/fraud_model.joblib`
+
+This represents Model A, the baseline classifier selected through the pre-declared Phase 1 model-selection procedure.
+
+Do not substitute:
+
+- `models/fraud_model_gan_augmented.joblib`
+- `models/fraud_model_baseline.joblib` as a separate model
+- `professor_supplied/B_NOON_model.joblib`
+
+The GAN-augmented model remains a secondary experimental candidate. Noon's classifier remains the external benchmark.
+
+The selected model's stored metadata should be checked before integration.
+
+The Phase 3 audit recorded:
+
+- Model type: custom `FraudModel`.
+- Model family: HistGradientBoosting.
+- Calibration: Platt sigmoid.
+- Frozen threshold: approximately 0.296956.
+- Positive class: 1 (fraud).
+- Feature order: the nine numeric/binary predictors and `payment_method`.
+- Prediction threshold: stored inside the model object.
+
+Independently verify these details from the saved model rather than hardcoding them.
+
+## Important: Understand the actual model interface
+
+Read the `FraudModel` class in `src/modeling.py`.
+
+Its interface is different from the professor's example.
+
+The custom model accepts a pandas DataFrame containing the original raw predictor columns.
+
+It internally performs preprocessing, prediction and probability calibration.
+
+Its methods are:
+
+- `model.predict(X)` — returns the final binary classification using the stored threshold.
+- `model.predict_proba(X)` — returns the calibrated fraud score.
+- `model.threshold` — contains the frozen decision threshold.
+- `model.feature_order` — contains the expected predictor-column order.
+
+In this implementation, `predict_proba()` returns a one-dimensional fraud-score array. Do not assume it returns the conventional two-column array used by a standard scikit-learn classifier.
+
+Do not manually apply `pd.get_dummies()` or reimplement the model's preprocessing.
+
+Do not replace the stored threshold with 0.5.
+
+Use the original raw feature values and let the saved model perform its own transformations.
+
+# PART 3 — RESOLVE THE JOBLIB LOADING AND PROJECT INTEGRATION
+
+The saved classifier is a custom Python object. Its class is defined within `src/modeling.py`.
+
+Ensure that the application can reliably import the required model classes before calling `joblib.load()`.
+
+The application should:
+
+1. Determine the project root using a path relative to `app.py`.
+2. Make the project root available on the Python import path.
+3. Ensure the `src` package and required classes are importable.
+4. Load `models/fraud_model.joblib` using an absolute, project-relative path.
+5. Validate the loaded object's required methods and attributes.
+6. Cache the loaded model appropriately using Streamlit resource caching.
+
+Do not depend on the user's current working directory being a particular location.
+
+Handle the following errors cleanly:
+
+- Missing model file.
+- Incorrect model path.
+- Failed model loading.
+- Missing model methods.
+- Incompatible model object.
+- Invalid transaction input.
+- Prediction failure.
+
+Do not suppress errors silently.
+
+The user should see a clear and understandable error message rather than a raw Python traceback.
+
+Do not overwrite or modify the saved classifier.
+
+# PART 4 — DESIGN THE STREAMLIT INPUT INTERFACE
+
+Build a clean, intuitive and professional fraud-check interface.
+
+The application must accept all ten predictor variables in the original data dictionary.
+
+The target variable `is_fraud` must never be entered by the user. It is the model's output.
+
+Use the exact field names and definitions.
+
+## Required input fields
+
+| Field | Required type | Interface |
+|---|---|---|
+| `order_amount` | Numeric AED | Decimal number input |
+| `account_age_days` | Non-negative integer | Integer number input |
+| `hour_of_day` | Integer, 0–23 | Slider or select input |
+| `num_orders_last_7d` | Non-negative integer | Integer number input |
+| `payment_method` | Category | Dropdown |
+| `delivery_distance_km` | Non-negative numeric | Decimal number input |
+| `discount_applied` | Binary, 0/1 | Yes/No selector |
+| `prev_refunds` | Non-negative integer | Integer number input |
+| `device_change` | Binary, 0/1 | Yes/No selector |
+| `location_mismatch` | Binary, 0/1 | Yes/No selector |
+
+The payment-method dropdown must contain exactly:
+
+- card
+- wallet
+- cod
+- applepay
+
+For binary fields, map the displayed Yes/No selections to exact integers 1 and 0.
+
+## Input validation
+
+Respect the data dictionary.
+
+Apply the following hard constraints:
+
+- Order amount must be positive.
+- Account age cannot be negative.
+- Hour must be an integer from 0 to 23.
+- Number of orders cannot be negative.
+- Delivery distance cannot be negative.
+- Previous refunds cannot be negative.
+- Binary fields must be either 0 or 1.
+- Payment method must match one of the four allowed values.
+
+Support decimal values for both order amount and delivery distance.
+
+Do not copy arbitrary maximum values from the professor's example, such as a maximum of 2,000 AED, 2,000 account-age days, 30 orders or 40 km, without evidence that they are genuine project constraints.
+
+If you decide to use soft warning ranges based on the Phase 1 training data, explain how those ranges were calculated. Do not silently reject otherwise valid transactions merely because they fall outside an observed training range.
+
+Display validation errors next to the relevant inputs.
+
+# PART 5 — APPLICATION LAYOUT AND USER EXPERIENCE
+
+The application should look like a polished internal fraud-screening prototype.
+
+Do not overengineer it or add unrelated functionality.
+
+Use the professor's two-column form layout as a starting point, but improve the visual hierarchy and usability.
+
+Recommended structure:
+
+### Header
+
+Display:
+
+**Noon — Fraud Detection & Transaction Screening**
+
+Include a short explanation that the tool evaluates a transaction against the saved machine-learning classifier.
+
+Do not imply that this is an official Noon production system or that Noon has endorsed the application. Identify it as the academic project prototype.
+
+### Transaction input form
+
+Organise the ten inputs logically into two columns or clearly separated sections.
+
+Use:
+- Clear field labels.
+- Appropriate units.
+- Readable spacing.
+- Sensible default examples.
+- A prominent Submit / Check Transaction button.
+
+Use Streamlit's form functionality where appropriate so that predictions are generated when the analyst submits the transaction, rather than every time an input changes.
+
+### Prediction result
+
+After submission, show a prominent result.
+
+If the saved model predicts class 1:
+
+Display:
+
+**FRAUD — FLAGGED FOR MANUAL REVIEW**
+
+If the saved model predicts class 0:
+
+Display:
+
+**LEGIT — NOT FLAGGED BY THE MODEL**
+
+The binary result must come directly from `model.predict()`.
+
+Do not invent additional rules or override the model's verdict.
+
+### Score display
+
+Display the output from `model.predict_proba()` as a model fraud score.
+
+The project README and Phase 1 model metadata establish that the calibration was performed on the synthetic training environment.
+
+Therefore:
+
+- Do not describe the score as a verified real-world probability.
+- Do not claim that a 70% score means a 70% real-world likelihood of fraud.
+- Use wording such as "Model Fraud Score".
+- Explain that its calibration reflects the synthetic validation environment and has not been established for Noon’s actual population.
+- Display the model's frozen decision threshold where useful.
+
+The verdict must follow the actual saved model's threshold.
+
+### Supporting model information
+
+Provide a compact expandable section containing:
+
+- Selected model name.
+- Model family.
+- Frozen decision threshold.
+- Training context.
+- Important evaluation limitations.
+
+Keep the main prediction screen clean and easy to understand.
+
+# PART 6 — IMPORTANT MODEL LIMITATIONS AND RESPONSIBLE INTERPRETATION
+
+The Phase 3 evaluation produced the following results for the selected model:
+
+- Recall: 67.69%.
+- Precision: 4.07%.
+- F1: 0.077.
+- True positives: 44.
+- False positives: 1,036.
+- Referee test-set fraud prevalence: 0.325%.
+
+These findings must inform the application's presentation.
+
+The model is an academic fraud-screening prototype, not a production-ready automated enforcement system.
+
+Its output should be interpreted as a signal to assist human review.
+
+In particular:
+
+- A FRAUD verdict means the model has flagged the transaction for investigation.
+- A LEGIT verdict means the model did not flag the transaction at its stored threshold.
+- Neither result independently establishes whether a transaction is genuinely fraudulent.
+- Do not automatically block an order, suspend an account, deny a refund, or take another enforcement action.
+- Do not display an unsupported claim of operational effectiveness.
+
+Include a short, professional disclaimer inside the application explaining these limitations.
+
+# PART 7 — APPLICATION ENGINEERING REQUIREMENTS
+
+Build the application as a maintainable Python file:
+
+`app.py`
+
+Place it at the project root so that the professor's expected command works:
+
+`streamlit run app.py`
+
+Keep the professor's original file:
+
+`professor_supplied/app(2).py`
+
+unchanged.
+
+Use modular functions where appropriate, for example:
+
+- `load_model()`
+- `validate_transaction()`
+- `build_transaction_dataframe()`
+- `score_transaction()`
+- `main()`
+
+Avoid unnecessary abstraction or excessive files.
+
+Ensure that:
+
+- The input DataFrame contains exactly the required predictor columns.
+- Column names match `model.feature_order`.
+- Input types are compatible with the saved pipeline.
+- `is_fraud` is not included in the predictor DataFrame.
+- The same raw input produces the same output as a direct call to the saved model.
+- The model is loaded only once through appropriate caching.
+- The application can run locally without internet access.
+- No database or external API is required.
+- User-entered transaction details are not silently stored or transmitted elsewhere.
+
+Do not add unnecessary libraries if the existing project dependencies already support the required functionality.
+
+# PART 8 — TESTING AND VALIDATION
+
+Do not declare Phase 4 complete simply because `app.py` has been written.
+
+Test the application thoroughly.
+
+## 8.1 Model integration tests
+
+Use several valid synthetic transaction examples.
+
+For each example:
+
+1. Construct the raw input DataFrame.
+2. Score it directly using the saved `fraud_model.joblib`.
+3. Submit the same input through the application's prediction function.
+4. Compare the resulting class prediction and score.
+5. Verify that both outputs agree.
+
+Include examples that cover:
+- All four payment methods.
+- Binary flags set to both 0 and 1.
+- Integer and decimal numeric inputs.
+- Valid zero values for nonnegative integer fields.
+- Different hours of the day.
+
+Do not use records from the real referee dataset as hardcoded application test examples.
+
+## 8.2 Input validation tests
+
+Verify that the application appropriately handles:
+
+- Negative order amount.
+- Negative account age.
+- Hour below 0.
+- Hour above 23.
+- Negative order count.
+- Negative delivery distance.
+- Negative refund count.
+- Invalid binary values.
+- Unsupported payment-method categories.
+- Decimal order amounts.
+- Decimal delivery distances.
+
+Invalid values should be rejected before prediction.
+
+## 8.3 Application execution tests
+
+Test:
+
+`streamlit run app.py`
+
+Verify:
+
+- The application starts without errors.
+- The model loads successfully.
+- The form renders correctly.
+- Submitting a valid transaction displays a result.
+- The correct model score is displayed.
+- Invalid values produce useful messages.
+- The application remains responsive.
+- The application can be stopped and restarted successfully.
+
+Use Streamlit's testing utilities where appropriate. A direct model-integration test is also required.
+
+If a browser or UI-testing capability is available, test the rendered user interface as well. Do not claim visual testing if it has not actually been performed.
+
+# PART 9 — FINAL PHASE 4 DELIVERABLES
+
+Produce the final outputs in the existing project structure.
+
+Required deliverables:
+
+1. `app.py` — final working Streamlit application.
+2. `models/fraud_model.joblib` — selected saved classifier, unchanged.
+3. Updated `README.md` — installation and execution instructions.
+4. `reports/phase4_quality_review.md` — checklist of completed tests and outstanding limitations.
+5. `reports/phase4_implementation_notes.md` — concise explanation of the application architecture, model integration and prediction workflow.
+6. `tests/test_phase4_app.py` or an equivalent reproducible test suite.
+7. Testing logs or a test-results summary.
+
+Do not overwrite the original professor files, saved models, referee dataset, or completed reports.
+
+Do not recreate Phase 1, Phase 2 or Phase 3.
+
+# PART 10 — FINAL QUALITY ASSURANCE
+
+Before declaring Phase 4 complete, verify all of the following:
+
+- The application uses `models/fraud_model.joblib`.
+- The selected model is the original Phase 1 baseline.
+- The GAN-augmented model has not been substituted.
+- Noon's benchmark model has not been substituted.
+- The model's stored preprocessing pipeline is used correctly.
+- The stored calibration and threshold are preserved.
+- All ten predictor inputs are present.
+- The data dictionary categories and field definitions are respected.
+- Decimal AED and delivery-distance values are supported.
+- Invalid inputs are handled appropriately.
+- The FRAUD / LEGIT verdict matches the saved classifier's prediction.
+- The displayed model score comes from the saved classifier.
+- The score is not falsely represented as a verified real-world fraud probability.
+- The application starts locally using the professor's specified command.
+- The application has been tested with synthetic examples.
+- The model files remain unchanged.
+- The professor's original app reference remains unchanged.
+- Phase 1, Phase 2 and Phase 3 outputs remain unchanged.
+- README instructions are accurate and reproducible.
+- No unsupported production-readiness claims are made.
+
+Mark each test as Passed, Failed or Not Tested. Include the evidence.
+
+If any test fails, investigate and fix the actual issue before declaring completion. Do not simply mark a failed check as passed.
+
+---
+
+# FINAL EXECUTION INSTRUCTION
+
+Proceed with Phase 4 only.
+
+Build the final Streamlit application around the already-selected baseline classifier.
+
+Prioritise correct model integration, faithful threshold application, clear verdict presentation, appropriate validation, a polished interface, and reproducible local execution.
+
+The final application must satisfy the professor's requirement: an analyst should be able to enter a transaction's details and receive a FRAUD or LEGIT verdict from the saved classifier.
+
+Complete the implementation, run the tests, update the documentation, and provide a clear final summary of what works and any remaining limitations.
+
+Do not modify or repeat the completed experiments merely to improve the appearance of the final result.

@@ -1,0 +1,9 @@
+# Minimal environment for the Phase 4 fraud-check app only (app.py + tests/test_phase4_app.py).
+# Verified in a clean virtual environment on Python 3.13: all 44 tests pass with exactly these packages.
+# The full notebook (Phases 1-3) needs requirements.txt instead.
+numpy==2.5.3
+pandas==2.3.3
+scikit-learn==1.9.1
+scipy==1.18.1
+joblib==1.6.0
+streamlit==1.65.0

@@ -1,0 +1,187 @@
+# FINAL SUBMISSION AUDIT — NOON FOOD DELIVERY FRAUD DETECTION PROJECT
+
+Act as an academic project auditor, senior Machine Learning Engineer, technical writer, and quality-assurance specialist.
+
+The entire project, covering Phases 1–4, has been completed.
+
+The latest Phase 4 application has been implemented and tested. Your task now is to conduct the final documentation and submission-readiness audit.
+
+Do not rebuild any phase, retrain any model, modify any dataset, or change the functioning dashboard.
+
+## 1. Read the authoritative assignment brief
+
+Review:
+
+- `A_INTERN_BRIEF.md`
+- `A_INTERN_data_dictionary.md`
+
+Pay particular attention to Section 8: What to Submit, and Section 9: How You'll Be Judged (40 marks).
+
+The original brief requires:
+
+1. The completed notebook with visible outputs.
+2. Synthetic fraud data in CSV format.
+3. Before/after and Noon's comparison metrics, including recall, precision, F1, confusion matrices and the relevant bar chart.
+4. A short written report of approximately one page answering the four prescribed questions.
+5. The working fraud-check tool, including `app.py` and the saved model.
+
+These are the controlling submission requirements.
+
+## 2. Correct the outdated final report
+
+Inspect:
+
+`reports/final_report.md`
+
+It currently contains a Phase 1-only report and incorrectly describes Phases 2–4 as pending.
+
+This document must be updated to reflect the complete project.
+
+Create a concise, integrated final submission report of approximately one page, with a corresponding Word document:
+
+- `reports/final_report.md`
+- `reports/Final_Project_Report.docx`
+
+The new report must answer all four questions from Section 8 of the professor's brief.
+
+### Required report structure
+
+**Title: Noon Food Delivery Fraud Detection — Final Project Report**
+
+**1. Initial fraud assumptions**
+
+Summarise the original seed-data assumptions and the fraud typologies developed from the data dictionary alone. Explain what later comparisons revealed about those assumptions.
+
+**2. GAN development and its impact**
+
+Explain why CTGAN was used, how it was trained, and what it generated.
+
+Clearly report the actual Phase 1 finding: CTGAN augmentation did not demonstrate a measurable improvement over the selected baseline under the pre-declared model-selection procedure.
+
+Use the verified before/after metrics. Do not claim that the GAN improved classification when the evidence does not support that conclusion.
+
+**3. Comparison with Noon**
+
+Summarise the most important Phase 2 findings and the Phase 3 evaluation on the real referee dataset.
+
+Clearly distinguish the synthetic comparison from the real-data evaluation.
+
+Include the verified Phase 3 results:
+
+- My selected classifier: 44 of 65 frauds caught, recall 67.69%, precision approximately 4.07%, F1 approximately 0.077, and 1,036 false positives.
+- My CTGAN-augmented classifier: 39 of 65 frauds caught, recall 60.00%, precision approximately 3.63%, and 1,034 false positives.
+- Noon Model B: 53 of 65 frauds caught, recall 81.54%, precision approximately 42.74%, F1 approximately 0.561, and 71 false positives.
+
+Explain why Noon performed better, using the evidence from Phase 2 and Phase 3.
+
+Do not imply that the supplied Noon synthetic data is ground truth.
+
+**4. Why not simply ask an LLM to generate fraud rows?**
+
+Explain the distinction between an LLM producing plausible-looking rows and a GAN learning a distribution through the generator-discriminator process.
+
+Explain why GAN training, distribution diagnostics, reproducibility and evaluation matter.
+
+Connect this to the central finding of the project: a GAN trained on assumption-driven data can only reproduce the assumptions it learned, whereas Noon's GAN had access to real fraud examples.
+
+**5. Final conclusion**
+
+End with a short conclusion explaining what the four phases demonstrate.
+
+Mention that the completed Streamlit application is an academic screening prototype intended to flag transactions for manual review, not to make autonomous enforcement decisions.
+
+### Reporting rules
+
+- Keep the report close to the professor's requested one-page length. A modest extension is acceptable if needed for clarity.
+- Use the verified results from the notebooks and CSV metrics. Do not calculate numbers from rounded values in older narrative reports.
+- Do not confuse Phase 1 synthetic test results with Phase 3 real referee results.
+- Do not omit the negative CTGAN augmentation finding.
+- Do not claim that the project beat Noon.
+- Do not invent sources, statistics or conclusions.
+- Use clear headings, precise technical language, readable tables only where genuinely useful, and consistent formatting.
+
+## 3. Update rubric traceability
+
+Inspect:
+
+`reports/rubric_traceability.md`
+
+Its ninth criterion currently states that only the Phase 1 report is complete and that real-data questions remain pending.
+
+Update this row to reflect the completed Phases 1–4 and the new integrated final report.
+
+Make sure the traceability document maps all nine criteria and all 40 marks to the actual final deliverables.
+
+Do not mark anything complete unless the relevant file or evidence exists.
+
+Keep the detailed individual Phase 1, Phase 2 and Phase 3 reports as separate supporting documents.
+
+## 4. Audit the README and deliverable inventory
+
+Check `README.md` and the final project file inventory.
+
+Ensure that:
+- Phase 1 is marked complete.
+- Phase 2 is marked complete.
+- Phase 3 is marked complete.
+- Phase 4 is marked complete.
+- The final project report is correctly identified.
+- The dashboard execution command is accurate.
+- The dependency installation instructions are accurate.
+- The model filename and path are correct.
+- The original professor files are clearly identified as supporting inputs.
+
+Do not duplicate long sections of the individual reports inside the README.
+
+## 5. Preserve the completed project
+
+This is a documentation-only finalisation task.
+
+Do not:
+- Retrain any classifier.
+- Refit CTGAN.
+- Recalculate or change the frozen decision threshold.
+- Modify any of the saved model artefacts.
+- Modify the seed dataset or synthetic fraud data.
+- Modify the professor's supplied CSVs, benchmark model or reference app.
+- Use the referee test set for any further model development.
+- Rebuild the Streamlit dashboard.
+- Change the verified Phase 1, Phase 2 or Phase 3 results.
+
+The existing Phase 4 test suite reports 44/44 passing tests and a successful Playwright browser check. Preserve all related evidence.
+
+If you discover a genuine reporting discrepancy, investigate it against the original metrics files and correct the documentation only. Do not silently alter the underlying experiment.
+
+## 6. Final submission-readiness audit
+
+Verify that the final package contains:
+
+1. The completed notebook with outputs visible.
+2. The seed transaction dataset.
+3. The GAN-generated synthetic fraud dataset.
+4. The saved GAN and classifier artefacts.
+5. Phase 1 metrics and diagnostic outputs.
+6. Phase 2 comparison data, charts and report.
+7. Phase 3 referee evaluation, benchmark comparison and report.
+8. The professor-specified Streamlit application functionality.
+9. The selected final classifier at `models/fraud_model.joblib`.
+10. The final integrated written report in Markdown and Word.
+11. The updated rubric traceability.
+12. The README and dependency files.
+13. Phase-specific quality reviews and Phase 4 test evidence.
+
+Check that no required file is missing.
+
+Run a final documentation consistency check.
+
+Do not claim that a file was tested, opened, rendered or executed unless this actually happened.
+
+## FINAL INSTRUCTION
+
+Complete the final documentation correction and submission audit.
+
+The goal is to make the project coherent as one finished academic submission, rather than a collection of phase-specific outputs with outdated status descriptions.
+
+Do not introduce new machine-learning experiments or cosmetic dashboard changes at this stage.
+
+At the end, provide a concise submission-readiness summary, an inventory of final deliverables, any remaining limitations, and an explicit statement of whether the project satisfies all five submission categories in Section 8 of the professor's brief.
